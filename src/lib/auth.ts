@@ -8,8 +8,20 @@ const SESSION_COOKIE = 'kaiedu_admin_session';
 const SESSION_DURATION_MIN = 60 * 24 * 7; // 7일
 
 export async function ensureAdminSeed(c: Context<{ Bindings: Bindings }>) {
-  const email = c.env.ADMIN_EMAIL || 'letsgo999@gmail.com';
-  const pwd = c.env.ADMIN_INITIAL_PASSWORD || '111';
+  // 보안: 평문 fallback 제거. Cloudflare Secret에서만 주입받음.
+  const email = c.env.ADMIN_EMAIL;
+  const pwd = c.env.ADMIN_INITIAL_PASSWORD;
+
+  // Secret이 미설정이면 시드 작업 자체를 스킵 (절대 평문 기본값 사용 금지)
+  if (!email || !pwd) {
+    console.warn('[auth] ADMIN_EMAIL / ADMIN_INITIAL_PASSWORD Secret 미설정 — admin seed skip');
+    return;
+  }
+
+  // 최소 강도 검증 (12자 이상)
+  if (pwd.length < 12) {
+    console.warn('[auth] ADMIN_INITIAL_PASSWORD 너무 짧음 (12자 이상 권장) — 시드는 진행하나 즉시 변경 필요');
+  }
 
   const existing = await c.env.DB.prepare(
     'SELECT id FROM admins WHERE email = ?'

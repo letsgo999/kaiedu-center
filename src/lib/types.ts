@@ -3,10 +3,11 @@
 export type Bindings = {
   DB: D1Database;
   ANTHROPIC_API_KEY: string;
-  ADMIN_EMAIL: string;
-  ADMIN_INITIAL_PASSWORD: string;
+  // 관리자 인증: Cloudflare Secret으로만 주입 (코드에 기본값 두지 않음)
+  ADMIN_EMAIL?: string;
+  ADMIN_INITIAL_PASSWORD?: string;
   RESEND_API_KEY?: string;
-  APP_BASE_URL: string;
+  APP_BASE_URL?: string;
 }
 
 export type Instructor = {
